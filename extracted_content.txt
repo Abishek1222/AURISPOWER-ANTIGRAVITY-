@@ -1,0 +1,47 @@
+Project  Requirement  Document  Software-Based  Electrical  Fault  Prevention  &  Prediction  System    System  Architecture  Overview   The  system  follows  a  modular,  layered  architecture,  ensuring  clarity,  scalability,  and  ease  of  
+demonstration.
+ 4.1  Electrical  Data  Simulator  (Digital  Twin  Layer)   This  module  acts  as  a  virtual  electrical  system,  replacing  real-world  electrical  hardware.  Simulated  Parameters  :  ●  Voltage  (V)  ●  Current  (A)  ●  Power  (W)  ●  Temperature  (°C)  ●  Leakage  current  ●  Load  imbalance  ●  Time  of  usage  Simulation  Characteristics  ●  Normal  operating  conditions  ●  Gradual  fault  development  ●  Sudden  fault  spikes  ●  Day-wise  and  usage-based  variations  The  simulator  produces  continuous  data  streams  that  resemble  real  electrical  behavior.   4.2  Fault  Injection  Engine  This  module  allows  intentional  creation  of  faults  in  software  to  test  system  response.  Supported  Fault  Types  ●  Overload  conditions  ●  Loose  electrical  connections  ●  Insulation  degradation  ●  Earth  leakage  ●  Early-stage  short  circuit  ●  Aging  wire  effects  This  feature  makes  the  system  suitable  for  controlled  experiments,  demonstrations,  and  
+academic
+ 
+evaluation.
+  4.3  AI  /  ML  Prediction  Layer  This  layer  analyzes  simulated  and  historical  data  to  detect  anomalies  and  predict  failures.  Analysis  Approaches  ●  Rule-based  logic  for  basic  demonstrations  ●  Anomaly  detection  models  (e.g.,  Isolation  Forest)  ●  Time-series  prediction  models  (e.g.,  LSTM)  ●  Pattern  deviation  models  (e.g.,  Autoencoders)  Outputs  ●  Risk  score  (0–100%)  ●  Fault  type  probability  
+●  Estimated  time-to-failure   4.4  Daily  Prevention  Engine  The  Daily  Prevention  Engine  continuously  evaluates  system  health  and  generates  
+preventive
+ 
+alerts.
+ Execution  Schedule  ●  Hourly  monitoring  ●  Daily  trend  analysis  ●  Pre-peak  load  evaluation  Sample  Alerts  ●  “Overheating  trend  detected  over  the  past  3  days”  ●  “Loose  connection  likely  in  Circuit  2”  ●  “Overload  risk  predicted  within  the  next  48  hours”   4.5  GenAI  Explanation  Module  Instead  of  showing  raw  technical  alerts,  this  module  converts  system  outputs  into  
+human-readable
+ 
+maintenance
+ 
+advice.
+ Example  Output  “The  wiring  temperature  has  been  increasing  abnormally,  which  usually  indicates  loose  
+connections.
+ 
+Inspection
+ 
+is
+ 
+recommended
+ 
+within
+ 
+the
+ 
+next
+ 
+two
+ 
+days
+ 
+to
+ 
+avoid
+ 
+fire
+ 
+risk.”
+ This  improves  usability  for  non-technical  users.   5.  Dashboard  &  User  Interface  A  secure  web-based  dashboard  provides  real-time  visualization  and  system  insights.  Dashboard  Features  :  ●  Live  simulated  electrical  readings  ●  Fault  timeline  visualization  ●  Risk  meter  and  alerts  ●  Historical  trend  graphs  ●  Preventive  maintenance  suggestions   6.  Role-Based  Access  &  Authentication  The  system  implements  standard  role-based  authentication  to  ensure  data  privacy  and  
+usability.
+  User  Roles  1.  Owner  (Super  Admin)  ●  Full  dashboard  access  ●  Sensitive  system  information  ●  User  management  (add/remove  users)  2.  Manager  ●  Overall  system  health  ●  Risk  summaries  and  fault  alerts  ●  Historical  trends  3.  Electrician  ●  Fault  details  and  locations  ●  Actionable  repair  recommendations  4.  Floor  Engineer  
+●  Floor-wise  live  status  ●  Load  and  temperature  trends  5.  Site  Engineer  ●  Site-level  overview  ●  Critical  warnings  and  maintenance  advice   Authentication  Method  ●  Username  and  password  login  ●  Password  hashing  (bcrypt)  ●  JWT  or  session-based  authentication  ●  Role  stored  and  validated  from  database  

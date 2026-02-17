@@ -1,0 +1,18 @@
+services:
+  backend:
+    build: ./backend
+    container_name: aurispower-backend
+    ports:
+      - "8000:8000"
+    environment:
+      - PYTHONUNBUFFERED=1
+    restart: always
+
+  frontend:
+    build: ./frontend
+    container_name: aurispower-frontend
+    ports:
+      - "5174:80"
+    depends_on:
+      - backend
+    restart: always

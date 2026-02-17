@@ -1,0 +1,11 @@
+fastapi
+uvicorn
+pypdf
+pandas
+scikit-learn
+numpy
+bcrypt
+python-jose[cryptography]
+passlib
+python-multipart
+websockets

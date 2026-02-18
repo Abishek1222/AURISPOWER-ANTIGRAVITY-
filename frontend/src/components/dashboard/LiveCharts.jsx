@@ -8,6 +8,7 @@ import {
     Title,
     Tooltip,
     Legend,
+    Filler,
 } from 'chart.js';
 import { Line } from 'react-chartjs-2';
 
@@ -18,10 +19,11 @@ ChartJS.register(
     LineElement,
     Title,
     Tooltip,
-    Legend
+    Legend,
+    Filler
 );
 
-const options = {
+const makeOptions = (title) => ({
     responsive: true,
     maintainAspectRatio: false,
     animation: {
@@ -29,78 +31,68 @@ const options = {
     },
     plugins: {
         legend: {
-            position: 'top',
-            labels: { color: '#94a3b8' }
+            display: false,
         },
         title: {
-            display: false,
+            display: true,
+            text: title,
+            color: '#e2e8f0',
+            font: { size: 13, weight: 600 },
+            padding: { bottom: 8 }
         },
     },
     scales: {
         x: {
-            grid: { color: 'rgba(148, 163, 184, 0.1)' },
-            ticks: { color: '#94a3b8' }
+            grid: { color: 'rgba(148, 163, 184, 0.08)' },
+            ticks: { color: '#64748b', font: { size: 10 }, maxTicksLimit: 8 }
         },
         y: {
-            grid: { color: 'rgba(148, 163, 184, 0.1)' },
-            ticks: { color: '#94a3b8' }
+            grid: { color: 'rgba(148, 163, 184, 0.08)' },
+            ticks: { color: '#64748b', font: { size: 10 } }
         }
     }
-};
+});
+
+const chartConfigs = [
+    { key: 'voltage', label: 'Voltage (V)', color: '#3b82f6' },
+    { key: 'current', label: 'Current (A)', color: '#10b981' },
+    { key: 'power', label: 'Power (W)', color: '#f59e0b' },
+    { key: 'temperature', label: 'Temperature (°C)', color: '#ef4444' },
+    { key: 'power_factor', label: 'Power Factor', color: '#8b5cf6' },
+    { key: 'vibration', label: 'Vibration (mm/s)', color: '#ec4899' },
+    { key: 'slip', label: 'Slip (%)', color: '#14b8a6' },
+    { key: 'speed', label: 'Speed (RPM)', color: '#f97316' },
+];
 
 const LiveCharts = ({ dataHistory }) => {
     const labels = dataHistory.map(d => new Date(d.timestamp).toLocaleTimeString());
 
-    const voltageData = {
-        labels,
-        datasets: [
-            {
-                label: 'Voltage (V)',
-                data: dataHistory.map(d => d.voltage),
-                borderColor: '#3b82f6',
-                backgroundColor: 'rgba(59, 130, 246, 0.5)',
-                tension: 0.4
-            }
-        ],
-    };
-
-    const currentData = {
-        labels,
-        datasets: [
-            {
-                label: 'Current (A)',
-                data: dataHistory.map(d => d.current),
-                borderColor: '#10b981',
-                backgroundColor: 'rgba(16, 185, 129, 0.5)',
-                tension: 0.4
-            }
-        ],
-    };
-
-    const tempData = {
-        labels,
-        datasets: [
-            {
-                label: 'Temperature (°C)',
-                data: dataHistory.map(d => d.temperature),
-                borderColor: '#ef4444',
-                backgroundColor: 'rgba(239, 68, 68, 0.5)',
-                tension: 0.4
-            }
-        ],
-    };
-
     return (
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '1rem' }}>
-            <div className="glass-panel" style={{ padding: '1rem', height: '300px' }}>
-                <Line options={options} data={voltageData} />
-            </div>
-            <div className="glass-panel" style={{ padding: '1rem', height: '300px' }}>
-                <Line options={options} data={currentData} />
-            </div>
-            <div className="glass-panel" style={{ padding: '1rem', height: '300px' }}>
-                <Line options={options} data={tempData} />
-            </div>
+            {chartConfigs.map(({ key, label, color }) => {
+                const data = {
+                    labels,
+                    datasets: [
+                        {
+                            label,
+                            data: dataHistory.map(d => d[key]),
+                            borderColor: color,
+                            backgroundColor: color + '20',
+                            tension: 0.4,
+                            pointRadius: 2,
+                            pointHoverRadius: 5,
+                            borderWidth: 2,
+                            fill: true,
+                        }
+                    ],
+                };
+
+                return (
+                    <div key={key} className="glass-panel" style={{ padding: '1rem', height: '250px' }}>
+                        <Line options={makeOptions(label)} data={data} />
+                    </div>
+                );
+            })}
         </div>
     );
 };

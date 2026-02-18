@@ -1,26 +1,10 @@
-from fastapi import FastAPI, WebSocket, WebSocketDisconnect
+from fastapi import FastAPI, WebSocket, WebSocketDisconnect, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 import asyncio
-import json
-from simulator.engine import ElectricalDataSimulator
-from simulator.fault_injector import FaultInjector
 from auth import router as auth_router
 from ml.anomaly_detector import AnomalyDetector
 from ml.genai_explainer import GenAIExplainer
 from ml.sustainability import SustainabilityEngine
-
-app = FastAPI()
-
-app.include_router(auth_router.router, prefix="/auth", tags=["auth"])
-
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
-
 from services.notification import NotificationService
 from simulator.multi_zone import MultiZoneEngine
 
@@ -36,7 +20,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Use MultiZoneEngine instead of single simulator
+# Core engines
 multi_zone_engine = MultiZoneEngine()
 anomaly_detector = AnomalyDetector()
 genai_explainer = GenAIExplainer()
@@ -45,7 +29,15 @@ notification_service = NotificationService()
 
 @app.get("/")
 def read_root():
-    return {"message": "Aurispower Backend Online (Multi-Zone Active)"}
+    return {"message": "Aurispower Backend Online (Dataset Replay Active)"}
+
+@app.get("/notifications")
+def get_notifications():
+    return notification_service.get_history()
+
+@app.get("/notifications/stats")
+def get_notification_stats():
+    return notification_service.get_stats()
 
 @app.post("/inject-fault/{zone_id}/{fault_type}")
 def inject_fault(zone_id: str, fault_type: str):
@@ -70,7 +62,6 @@ async def websocket_endpoint(websocket: WebSocket):
     await websocket.accept()
     try:
         while True:
-            # Get readings for ALL zones
             readings = multi_zone_engine.get_all_readings()
             
             processed_readings = []
@@ -82,9 +73,10 @@ async def websocket_endpoint(websocket: WebSocket):
                 # Sustainability Analysis
                 sust_metrics = sustainability_engine.calculate_impact(data['power'], data['timestamp'])
 
-                # Notification Logic
-                if data['status'] == 'Overload':
-                    notification_service.send_alert("critical", "Overload detected! Immediate check required.", data['zone_name'])
+                # Notification Logic for critical faults
+                if data['status'] not in ('Normal Operation', '-'):
+                    severity = "critical" if explanation.get("risk_score", 0) >= 85 else "warning"
+                    notification_service.send_alert(severity, f"{data['status']} detected", data.get('zone_name', 'Unknown'))
 
                 data['anomaly_score'] = int(is_anomaly)
                 data['analysis'] = explanation
@@ -92,6 +84,6 @@ async def websocket_endpoint(websocket: WebSocket):
                 processed_readings.append(data)
 
             await websocket.send_json(processed_readings)
-            await asyncio.sleep(1) # Simulate 1 second data interval
+            await asyncio.sleep(1)
     except WebSocketDisconnect:
         print("Frontend disconnected")

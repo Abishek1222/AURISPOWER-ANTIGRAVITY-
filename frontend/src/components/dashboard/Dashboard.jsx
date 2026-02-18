@@ -35,18 +35,18 @@ const Dashboard = () => {
                 return newHistory;
             });
 
-            // Gneerate Mock Alerts based on status (Replace with real ML/GenAI backend later)
-            if (data.status !== 'Normal') {
+            // Generate alerts based on dataset fault type
+            if (data.status !== 'Normal Operation') {
                 const newAlert = {
-                    title: `System Alert: ${data.status}`,
+                    title: `${data.status}`,
                     message: data.analysis?.message || "Fault Detected",
-                    type: data.status === 'Overload' ? 'critical' : 'warning',
+                    type: data.analysis?.type === 'critical' ? 'critical' : 'warning',
                     timestamp: new Date().toISOString()
                 };
 
                 setAlerts(prev => {
                     if (prev.length > 0 && prev[0].title === newAlert.title && (new Date() - new Date(prev[0].timestamp) < 5000)) return prev;
-                    return [newAlert, ...prev].slice(0, 5);
+                    return [newAlert, ...prev].slice(0, 10);
                 });
             }
         };
@@ -83,10 +83,11 @@ const Dashboard = () => {
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', overflowY: 'auto', paddingRight: '0.5rem' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
                     <h2 style={{ margin: 0 }}>Real-Time Monitor</h2>
-                    <div style={{ display: 'flex', gap: '0.5rem' }}>
-                        <button onClick={() => handleInjectFault('Overload')} className="btn-primary" style={{ background: 'var(--danger)', fontSize: '0.8rem', padding: '0.5rem 1rem' }}>Simulate Overload</button>
-                        <button onClick={() => handleInjectFault('Loose Connection')} className="btn-primary" style={{ background: 'var(--warning)', fontSize: '0.8rem', padding: '0.5rem 1rem' }}>Simulate Loose Connection</button>
-                        <button onClick={handleClearFault} className="btn-primary" style={{ background: 'var(--success)', fontSize: '0.8rem', padding: '0.5rem 1rem' }}>Clear Faults</button>
+                    <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+                        <button onClick={() => handleInjectFault('Overcurrent')} className="btn-primary" style={{ background: 'var(--danger)', fontSize: '0.75rem', padding: '0.4rem 0.75rem' }}>Overcurrent</button>
+                        <button onClick={() => handleInjectFault('Stator Winding Fault')} className="btn-primary" style={{ background: 'var(--warning)', fontSize: '0.75rem', padding: '0.4rem 0.75rem' }}>Stator Fault</button>
+                        <button onClick={() => handleInjectFault('Bearing Inner Race Fault')} className="btn-primary" style={{ background: '#8b5cf6', fontSize: '0.75rem', padding: '0.4rem 0.75rem' }}>Bearing Fault</button>
+                        <button onClick={handleClearFault} className="btn-primary" style={{ background: 'var(--success)', fontSize: '0.75rem', padding: '0.4rem 0.75rem' }}>Clear Override</button>
                     </div>
                 </div>
 
@@ -105,7 +106,7 @@ const Dashboard = () => {
                         </div>
                         <div>
                             <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>Power</p>
-                            <p style={{ fontSize: '1.5rem', fontWeight: 600 }}>{currentData?.power || '--'} W</p>
+                            <p style={{ fontSize: '1.5rem', fontWeight: 600 }}>{currentData?.power || '--'} kW</p>
                         </div>
                         <div>
                             <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>Temperature</p>
@@ -134,8 +135,8 @@ const Dashboard = () => {
             {/* Sidebar Area */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', overflowY: 'auto' }}>
                 <RiskMeter
-                    status={currentData?.status || 'Normal'}
-                    riskScore={currentData?.status === 'Normal' ? 10 : currentData?.status === 'Overload' ? 95 : 65}
+                    status={currentData?.status || 'Normal Operation'}
+                    riskScore={currentData?.analysis?.risk_score ?? 10}
                 />
                 <SustainabilityCard metrics={currentData?.sustainability} />
                 <AlertFeed alerts={alerts} />

@@ -1,57 +1,46 @@
+import pandas as pd
 import random
-import time
-import math
+import os
 from datetime import datetime
 from typing import Dict, Any
 
-class ElectricalDataSimulator:
-    def __init__(self):
-        self.base_voltage = 230.0  # Volts
-        self.base_current = 10.0   # Amps
-        self.base_temp = 35.0      # Celsius
-        self.frequency = 50.0      # Hz
-        self.noise_level = 0.05    # 5% random noise
+# Path to the dataset: engine.py → simulator/ → backend/ → project root → Datasets/
+DATASET_PATH = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), 
+                            'Datasets', 'Industrial_MultiClass_Dataset_With_Slip.xlsx')
+
+class DatasetReplayEngine:
+    """
+    Replays rows from the real industrial dataset instead of generating random data.
+    Cycles through the dataset continuously, one row per call.
+    """
+    def __init__(self, offset: int = 0):
+        self.df = pd.read_excel(DATASET_PATH)
+        self.index = offset % len(self.df)
+        self.total_rows = len(self.df)
 
     def generate_reading(self) -> Dict[str, Any]:
         """
-        Generates a single time-step of electrical data.
+        Returns the next row from the dataset as a reading dict.
+        Loops back to start when the dataset is exhausted.
         """
-        # Add random noise
-        voltage_noise = random.uniform(-self.base_voltage * self.noise_level, self.base_voltage * self.noise_level)
-        current_noise = random.uniform(-self.base_current * self.noise_level, self.base_current * self.noise_level)
-        temp_noise = random.uniform(-1.0, 1.0)
-
-        voltage = self.base_voltage + voltage_noise
-        current = self.base_current + current_noise
-        
-        # Power Calculation (P = V * I * pf), assuming power factor ~0.9
-        power_factor = random.uniform(0.85, 0.95)
-        power = voltage * current * power_factor
-        
-        temperature = self.base_temp + (current * 0.5) + temp_noise # Temp rises with current
-
-        # Motor metrics
-        vibration = round(random.uniform(0.5, 3.0), 2)       # mm/s (normal range)
-        synchronous_speed = 1500  # RPM for 4-pole, 50Hz motor
-        slip = round(random.uniform(2.0, 5.0), 2)            # percentage
-        speed = round(synchronous_speed * (1 - slip / 100), 1)  # RPM with slip applied
+        row = self.df.iloc[self.index]
+        self.index = (self.index + 1) % self.total_rows
 
         return {
             "timestamp": datetime.now().isoformat(),
-            "voltage": round(voltage, 2),
-            "current": round(current, 2),
-            "power": round(power, 2),
-            "power_factor": round(power_factor, 3),
-            "temperature": round(temperature, 2),
-            "frequency": round(self.frequency + random.uniform(-0.1, 0.1), 2),
-            "vibration": vibration,
-            "slip": slip,
-            "speed": speed,
-            "status": "Normal" # Default status, will be overridden by fault injector
+            "voltage": round(float(row['Voltage (V)']), 2),
+            "current": round(float(row['Current (A)']), 2),
+            "power": round(float(row['Power (kW)']), 2),
+            "temperature": round(float(row['Temperature (°C)']), 2),
+            "vibration": round(float(row['Vibration (mm/s)']), 2),
+            "speed": round(float(row['Speed (RPM)']), 1),
+            "slip": round(float(row['Slip']) * 100, 2),        # Convert fraction → percentage
+            "power_factor": round(float(row['Power Factor']), 3),
+            "frequency": round(50.0 + random.uniform(-0.1, 0.1), 2),  # Simulated grid freq
+            "status": str(row['Fault_Type']),
+            "combination": str(row['Combination']),
         }
 
-if __name__ == "__main__":
-    sim = ElectricalDataSimulator()
-    while True:
-        print(sim.generate_reading())
-        time.sleep(1)
+
+# Keep backward-compatible alias
+ElectricalDataSimulator = DatasetReplayEngine

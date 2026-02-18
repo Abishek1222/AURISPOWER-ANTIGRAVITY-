@@ -1,7 +1,5 @@
 import numpy as np
 from sklearn.ensemble import IsolationForest
-import joblib
-import os
 
 class AnomalyDetector:
     def __init__(self):
@@ -9,14 +7,22 @@ class AnomalyDetector:
         self.is_fitted = False
         self.data_buffer = []
 
+    def _extract_features(self, reading):
+        """Extract all 8 numerical features from a reading."""
+        return [
+            reading['voltage'],
+            reading['current'],
+            reading['power'],
+            reading['temperature'],
+            reading['vibration'],
+            reading['speed'],
+            reading['slip'],
+            reading['power_factor'],
+        ]
+
     def train(self, data):
-        """
-        Train the model with historical data.
-        data: list of [voltage, current, power, temperature]
-        """
         if len(data) < 50:
-            return # Not enough data to train
-        
+            return
         X = np.array(data)
         self.model.fit(X)
         self.is_fitted = True
@@ -27,26 +33,14 @@ class AnomalyDetector:
         Predict if the current reading is an anomaly.
         Returns -1 for anomaly, 1 for normal.
         """
+        features = self._extract_features(reading)
+
         if not self.is_fitted:
-            # Buffer data for initial training
-            self.data_buffer.append([
-                reading['voltage'], 
-                reading['current'], 
-                reading['power'], 
-                reading['temperature']
-            ])
-            
+            self.data_buffer.append(features)
             if len(self.data_buffer) >= 100:
                 self.train(self.data_buffer)
-                self.data_buffer = [] # Clear buffer after training
-            
-            return 1 # Assume normal until trained
+                self.data_buffer = []
+            return 1  # Assume normal until trained
 
-        X = np.array([[
-            reading['voltage'], 
-            reading['current'], 
-            reading['power'], 
-            reading['temperature']
-        ]])
-        
+        X = np.array([features])
         return self.model.predict(X)[0]

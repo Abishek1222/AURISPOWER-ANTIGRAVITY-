@@ -4,9 +4,10 @@ class SustainabilityEngine:
         self.total_energy_kwh = 0.0
         self.last_timestamp = None
 
-    def calculate_impact(self, power_watts, timestamp):
+    def calculate_impact(self, power_kw, timestamp):
         """
         Calculates cumulative energy usage and CO2 emissions.
+        power_kw: power in kilowatts (dataset already provides kW)
         """
         if self.last_timestamp is None:
             self.last_timestamp = timestamp
@@ -16,20 +17,17 @@ class SustainabilityEngine:
                 "efficiency_score": 100
             }
 
-        # Calculate time difference in hours
-        # Assuming timestamp is ISO format string, but for simplicity in simulation loop
-        # we know it is called every 1 second.
-        time_diff_hours = 1.0 / 3600.0 
+        # Each call ~1 second apart
+        time_diff_hours = 1.0 / 3600.0
 
         # Energy (kWh) = Power (kW) * Time (h)
-        kwh = (power_watts / 1000.0) * time_diff_hours
+        kwh = power_kw * time_diff_hours
         self.total_energy_kwh += kwh
 
         co2_kg = self.total_energy_kwh * self.co2_factor
 
-        # Mock efficiency score based on power factor/stability (simplified)
-        efficiency_score = 95 - (power_watts * 0.001) # Dummy logic: higher power -> slightly lower efficiency for demo
-        if efficiency_score < 70: efficiency_score = 70
+        # Efficiency based on actual power draw vs nominal
+        efficiency_score = max(70, 95 - (power_kw * 1.5))
 
         return {
             "energy_kwh": round(self.total_energy_kwh, 6),

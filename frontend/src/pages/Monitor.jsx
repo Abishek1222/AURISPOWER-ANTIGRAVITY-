@@ -13,7 +13,9 @@ const Monitor = () => {
 
         ws.onmessage = (event) => {
             if (isPaused) return;
-            const data = JSON.parse(event.data);
+            const parsedData = JSON.parse(event.data);
+            // Handle Multi-Zone data (Array) vs Single Zone (Object)
+            const data = Array.isArray(parsedData) ? parsedData[0] : parsedData;
             setHistory(prev => [data, ...prev].slice(0, 100)); // Keep last 100 records
         };
 
@@ -23,7 +25,7 @@ const Monitor = () => {
     }, [isPaused]);
 
     const handleExport = () => {
-        const headers = ["Timestamp", "Voltage (V)", "Current (A)", "Power (W)", "Temp (C)", "Frequency (Hz)", "Status"];
+        const headers = ["Timestamp", "Voltage (V)", "Current (A)", "Power (W)", "Power Factor", "Temp (C)", "Frequency (Hz)", "Vibration (mm/s)", "Slip (%)", "Speed (RPM)", "Status"];
         const csvContent = [
             headers.join(","),
             ...history.map(row => [
@@ -31,8 +33,12 @@ const Monitor = () => {
                 row.voltage,
                 row.current,
                 row.power,
+                row.power_factor,
                 row.temperature,
                 row.frequency,
+                row.vibration,
+                row.slip,
+                row.speed,
                 row.status
             ].join(","))
         ].join("\n");
@@ -69,16 +75,20 @@ const Monitor = () => {
             </div>
 
             <div className="glass-panel" style={{ flex: 1, overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
-                <div style={{ overflowY: 'auto', flex: 1 }}>
-                    <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.9rem' }}>
+                <div style={{ overflowY: 'auto', overflowX: 'auto', flex: 1 }}>
+                    <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.85rem', whiteSpace: 'nowrap' }}>
                         <thead style={{ position: 'sticky', top: 0, background: 'rgba(17, 24, 39, 0.95)', backdropFilter: 'blur(4px)', zIndex: 10 }}>
                             <tr>
                                 <th style={thStyle}>Timestamp</th>
                                 <th style={thStyle}>Voltage (V)</th>
                                 <th style={thStyle}>Current (A)</th>
-                                <th style={thStyle}>Power (W)</th>
+                                <th style={thStyle}>Power (kW)</th>
+                                <th style={thStyle}>PF</th>
                                 <th style={thStyle}>Temp (°C)</th>
                                 <th style={thStyle}>Freq (Hz)</th>
+                                <th style={thStyle}>Vibration (mm/s)</th>
+                                <th style={thStyle}>Slip (%)</th>
+                                <th style={thStyle}>Speed (RPM)</th>
                                 <th style={thStyle}>Status</th>
                             </tr>
                         </thead>
@@ -86,11 +96,15 @@ const Monitor = () => {
                             {history.map((row, index) => (
                                 <tr key={index} style={{ borderBottom: '1px solid rgba(255,255,255,0.05)', background: index % 2 === 0 ? 'rgba(255,255,255,0.02)' : 'transparent' }}>
                                     <td style={tdStyle}>{new Date(row.timestamp).toLocaleTimeString()}</td>
-                                    <td style={{ ...tdStyle, color: 'var(--text-primary)' }}>{row.voltage.toFixed(1)}</td>
-                                    <td style={{ ...tdStyle, color: 'var(--text-primary)' }}>{row.current.toFixed(1)}</td>
-                                    <td style={{ ...tdStyle, color: 'var(--text-primary)' }}>{row.power.toFixed(0)}</td>
-                                    <td style={{ ...tdStyle, color: row.temperature > 75 ? 'var(--danger)' : 'var(--text-primary)' }}>{row.temperature.toFixed(1)}</td>
-                                    <td style={tdStyle}>{row.frequency.toFixed(2)}</td>
+                                    <td style={{ ...tdStyle, color: 'var(--text-primary)' }}>{row.voltage?.toFixed(1)}</td>
+                                    <td style={{ ...tdStyle, color: 'var(--text-primary)' }}>{row.current?.toFixed(1)}</td>
+                                    <td style={{ ...tdStyle, color: 'var(--text-primary)' }}>{row.power?.toFixed(0)}</td>
+                                    <td style={{ ...tdStyle, color: row.power_factor < 0.8 ? 'var(--danger)' : 'var(--text-primary)' }}>{row.power_factor?.toFixed(3)}</td>
+                                    <td style={{ ...tdStyle, color: row.temperature > 75 ? 'var(--danger)' : 'var(--text-primary)' }}>{row.temperature?.toFixed(1)}</td>
+                                    <td style={tdStyle}>{row.frequency?.toFixed(2)}</td>
+                                    <td style={{ ...tdStyle, color: row.vibration > 5 ? 'var(--danger)' : 'var(--text-primary)' }}>{row.vibration?.toFixed(2)}</td>
+                                    <td style={{ ...tdStyle, color: row.slip > 8 ? 'var(--danger)' : 'var(--text-primary)' }}>{row.slip?.toFixed(2)}</td>
+                                    <td style={{ ...tdStyle, color: 'var(--text-primary)' }}>{row.speed?.toFixed(1)}</td>
                                     <td style={tdStyle}>
                                         <span style={{
                                             padding: '0.25rem 0.5rem',
@@ -106,7 +120,7 @@ const Monitor = () => {
                             ))}
                             {history.length === 0 && (
                                 <tr>
-                                    <td colSpan="7" style={{ textAlign: 'center', padding: '2rem', color: 'var(--text-secondary)' }}>Waiting for data stream...</td>
+                                    <td colSpan="11" style={{ textAlign: 'center', padding: '2rem', color: 'var(--text-secondary)' }}>Waiting for data stream...</td>
                                 </tr>
                             )}
                         </tbody>
@@ -119,15 +133,16 @@ const Monitor = () => {
 };
 
 const thStyle = {
-    padding: '1rem',
+    padding: '0.75rem 0.5rem',
     textAlign: 'left',
     color: 'var(--text-secondary)',
     fontWeight: 600,
-    borderBottom: '1px solid rgba(255,255,255,0.1)'
+    borderBottom: '1px solid rgba(255,255,255,0.1)',
+    fontSize: '0.8rem'
 };
 
 const tdStyle = {
-    padding: '0.75rem 1rem',
+    padding: '0.5rem',
     color: 'var(--text-secondary)'
 };
 

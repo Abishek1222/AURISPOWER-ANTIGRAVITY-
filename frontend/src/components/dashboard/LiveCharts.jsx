@@ -56,7 +56,7 @@ const makeOptions = (title) => ({
 const chartConfigs = [
     { key: 'voltage', label: 'Voltage (V)', color: '#3b82f6' },
     { key: 'current', label: 'Current (A)', color: '#10b981' },
-    { key: 'power', label: 'Power (W)', color: '#f59e0b' },
+    { key: 'power', label: 'Power (kW)', color: '#f59e0b' },
     { key: 'temperature', label: 'Temperature (°C)', color: '#ef4444' },
     { key: 'power_factor', label: 'Power Factor', color: '#8b5cf6' },
     { key: 'vibration', label: 'Vibration (mm/s)', color: '#ec4899' },

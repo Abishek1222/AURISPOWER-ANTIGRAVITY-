@@ -1,10 +1,10 @@
 import React from 'react';
 
 const RiskMeter = ({ riskScore, status }) => {
-    // Determine color based on status or risk score
+    // Determine color based on risk score (driven by dataset fault types)
     let color = 'var(--success)';
-    if (status === 'Overload' || riskScore > 80) color = 'var(--danger)';
-    else if (status !== 'Normal' || riskScore > 50) color = 'var(--warning)';
+    if (riskScore > 80) color = 'var(--danger)';
+    else if (riskScore > 40) color = 'var(--warning)';
 
     return (
         <div className="glass-panel" style={{ padding: '1.5rem', textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '200px' }}>

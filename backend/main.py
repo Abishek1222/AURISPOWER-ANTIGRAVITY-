@@ -70,12 +70,14 @@ async def websocket_endpoint(websocket: WebSocket):
                 is_anomaly = anomaly_detector.predict(data)
                 explanation = genai_explainer.explain(data, is_anomaly, data['status'])
                 
-                # Sustainability Analysis
-                sust_metrics = sustainability_engine.calculate_impact(data['power'], data['timestamp'])
+                # Sustainability Analysis — pass power_factor from dataset
+                sust_metrics = sustainability_engine.calculate_impact(
+                    data['power'], data['timestamp'], data.get('power_factor')
+                )
 
-                # Notification Logic for critical faults
+                # Notification Logic — severity derived from the explainer's output
                 if data['status'] not in ('Normal Operation', '-'):
-                    severity = "critical" if explanation.get("risk_score", 0) >= 85 else "warning"
+                    severity = "critical" if explanation.get("type") == "critical" else "warning"
                     notification_service.send_alert(severity, f"{data['status']} detected", data.get('zone_name', 'Unknown'))
 
                 data['anomaly_score'] = int(is_anomaly)

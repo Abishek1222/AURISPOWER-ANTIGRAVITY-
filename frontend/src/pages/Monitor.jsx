@@ -110,8 +110,8 @@ const Monitor = () => {
                                             padding: '0.25rem 0.5rem',
                                             borderRadius: '12px',
                                             fontSize: '0.75rem',
-                                            background: row.status === 'Normal' ? 'rgba(16, 185, 129, 0.2)' : 'rgba(239, 68, 68, 0.2)',
-                                            color: row.status === 'Normal' ? 'var(--success)' : 'var(--danger)'
+                                            background: row.status === 'Normal Operation' ? 'rgba(16, 185, 129, 0.2)' : 'rgba(239, 68, 68, 0.2)',
+                                            color: row.status === 'Normal Operation' ? 'var(--success)' : 'var(--danger)'
                                         }}>
                                             {row.status}
                                         </span>

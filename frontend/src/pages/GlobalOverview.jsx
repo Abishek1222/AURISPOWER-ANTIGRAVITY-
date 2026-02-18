@@ -30,9 +30,10 @@ const GlobalOverview = () => {
         return <Globe size={32} />;
     };
 
-    const getStatusColor = (status) => {
-        if (status === 'Overload') return 'var(--danger)';
-        if (status === 'Loose Connection') return 'var(--warning)';
+    const getStatusColor = (zone) => {
+        const type = zone.analysis?.type;
+        if (type === 'critical') return 'var(--danger)';
+        if (type === 'warning') return 'var(--warning)';
         return 'var(--success)';
     };
 
@@ -45,13 +46,13 @@ const GlobalOverview = () => {
 
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '1.5rem' }}>
                 {zonesData.map((zone) => (
-                    <div key={zone.zone_id} className="glass-panel" style={{ padding: '1.5rem', borderTop: `4px solid ${getStatusColor(zone.status)}` }}>
+                    <div key={zone.zone_id} className="glass-panel" style={{ padding: '1.5rem', borderTop: `4px solid ${getStatusColor(zone)}` }}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1rem' }}>
                             <div style={{ background: 'rgba(255,255,255,0.05)', padding: '0.75rem', borderRadius: '12px' }}>
                                 {getIcon(zone.zone_name)}
                             </div>
                             <span style={{
-                                background: getStatusColor(zone.status),
+                                background: getStatusColor(zone),
                                 padding: '0.25rem 0.75rem',
                                 borderRadius: '20px',
                                 fontSize: '0.8rem',

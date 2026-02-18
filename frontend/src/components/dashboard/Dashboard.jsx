@@ -5,10 +5,22 @@ import AlertFeed from './AlertFeed';
 import SustainabilityCard from './SustainabilityCard';
 import api from '../../services/api';
 
+const DATASET_FAULT_TYPES = [
+    "Undervoltage", "Overvoltage", "Voltage Unbalance", "Voltage Unbalance with Rotor Fault",
+    "Overcurrent", "Single Phasing",
+    "Stator Winding Fault", "Stator Overheating",
+    "Rotor Bar Fault", "Rotor Imbalance",
+    "Insulation Breakdown", "Insulation Breakdown with Ground Leakage",
+    "Bearing Inner Race Fault", "Bearing Outer Race Fault", "Bearing Fault with Speed Drop", "Bearing Overheating",
+    "Mechanical Overload", "Overload with Overheating", "Shaft Misalignment",
+    "Cooling Failure", "Electrical and Mechanical Combined Failure", "Catastrophic System Failure",
+];
+
 const Dashboard = () => {
     const [dataHistory, setDataHistory] = useState([]);
     const [currentData, setCurrentData] = useState(null);
     const [alerts, setAlerts] = useState([]);
+    const [selectedFault, setSelectedFault] = useState(DATASET_FAULT_TYPES[0]);
     const wsRef = useRef(null);
 
     useEffect(() => {
@@ -83,11 +95,27 @@ const Dashboard = () => {
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', overflowY: 'auto', paddingRight: '0.5rem' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
                     <h2 style={{ margin: 0 }}>Real-Time Monitor</h2>
-                    <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
-                        <button onClick={() => handleInjectFault('Overcurrent')} className="btn-primary" style={{ background: 'var(--danger)', fontSize: '0.75rem', padding: '0.4rem 0.75rem' }}>Overcurrent</button>
-                        <button onClick={() => handleInjectFault('Stator Winding Fault')} className="btn-primary" style={{ background: 'var(--warning)', fontSize: '0.75rem', padding: '0.4rem 0.75rem' }}>Stator Fault</button>
-                        <button onClick={() => handleInjectFault('Bearing Inner Race Fault')} className="btn-primary" style={{ background: '#8b5cf6', fontSize: '0.75rem', padding: '0.4rem 0.75rem' }}>Bearing Fault</button>
-                        <button onClick={handleClearFault} className="btn-primary" style={{ background: 'var(--success)', fontSize: '0.75rem', padding: '0.4rem 0.75rem' }}>Clear Override</button>
+                    <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+                        <select
+                            value={selectedFault}
+                            onChange={(e) => setSelectedFault(e.target.value)}
+                            style={{
+                                background: 'rgba(255,255,255,0.08)',
+                                border: '1px solid rgba(255,255,255,0.15)',
+                                borderRadius: '8px',
+                                padding: '0.4rem 0.6rem',
+                                color: 'var(--text-primary)',
+                                fontSize: '0.75rem',
+                                outline: 'none',
+                                maxWidth: '220px',
+                            }}
+                        >
+                            {DATASET_FAULT_TYPES.map(f => (
+                                <option key={f} value={f}>{f}</option>
+                            ))}
+                        </select>
+                        <button onClick={() => handleInjectFault(selectedFault)} className="btn-primary" style={{ background: 'var(--danger)', fontSize: '0.75rem', padding: '0.4rem 0.75rem', whiteSpace: 'nowrap' }}>Inject Fault</button>
+                        <button onClick={handleClearFault} className="btn-primary" style={{ background: 'var(--success)', fontSize: '0.75rem', padding: '0.4rem 0.75rem', whiteSpace: 'nowrap' }}>Clear Override</button>
                     </div>
                 </div>
 

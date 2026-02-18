@@ -1,5 +1,6 @@
 class GenAIExplainer:
     def __init__(self):
+        # All 23 fault types from the Industrial_MultiClass_Dataset_With_Slip.xlsx
         self.explanations = {
             "Normal Operation": {
                 "title": "System Healthy",
@@ -25,6 +26,12 @@ class GenAIExplainer:
                 "risk_score": 65,
                 "type": "warning"
             },
+            "Voltage Unbalance with Rotor Fault": {
+                "title": "Voltage Unbalance + Rotor Fault",
+                "message": "Phase voltage imbalance combined with rotor degradation. Dual failure mode accelerates damage. Immediate inspection of both supply and rotor required.",
+                "risk_score": 85,
+                "type": "critical"
+            },
             "Overcurrent": {
                 "title": "Overcurrent Alert",
                 "message": "Current draw exceeds rated limits. Risk of thermal runaway and winding damage. Reduce load or check for mechanical binding.",
@@ -43,10 +50,22 @@ class GenAIExplainer:
                 "risk_score": 85,
                 "type": "critical"
             },
+            "Stator Overheating": {
+                "title": "Stator Overheating",
+                "message": "Stator temperature exceeds safe operating limits. Potential causes include overloading, poor ventilation, or winding insulation degradation. Reduce load and inspect cooling system.",
+                "risk_score": 80,
+                "type": "critical"
+            },
             "Rotor Bar Fault": {
                 "title": "Rotor Bar Fault",
                 "message": "Elevated slip and vibration indicate broken or cracked rotor bars. Motor efficiency is degraded. Plan maintenance before catastrophic failure.",
                 "risk_score": 80,
+                "type": "warning"
+            },
+            "Rotor Imbalance": {
+                "title": "Rotor Imbalance Detected",
+                "message": "Uneven mass distribution on rotor causing excessive vibration. May lead to bearing wear and shaft fatigue. Schedule dynamic balancing.",
+                "risk_score": 70,
                 "type": "warning"
             },
             "Insulation Breakdown": {
@@ -55,11 +74,71 @@ class GenAIExplainer:
                 "risk_score": 85,
                 "type": "critical"
             },
+            "Insulation Breakdown with Ground Leakage": {
+                "title": "Insulation Breakdown + Ground Leakage",
+                "message": "Severe insulation failure with active ground leakage current detected. High risk of electrical shock and arc flash. Emergency shutdown and isolation required.",
+                "risk_score": 95,
+                "type": "critical"
+            },
             "Bearing Inner Race Fault": {
-                "title": "Bearing Fault Detected",
+                "title": "Bearing Inner Race Fault",
                 "message": "High-frequency vibration signature matches bearing inner race defect. Continued operation risks seizure. Replace bearing at next maintenance window.",
                 "risk_score": 75,
                 "type": "warning"
+            },
+            "Bearing Outer Race Fault": {
+                "title": "Bearing Outer Race Fault",
+                "message": "Vibration analysis indicates outer race pitting or spalling. Bearing integrity compromised. Schedule replacement to avoid catastrophic seizure.",
+                "risk_score": 75,
+                "type": "warning"
+            },
+            "Bearing Fault with Speed Drop": {
+                "title": "Bearing Fault + Speed Drop",
+                "message": "Bearing degradation causing increased friction and measurable speed reduction. Motor is losing efficiency. Urgent bearing replacement required.",
+                "risk_score": 80,
+                "type": "critical"
+            },
+            "Bearing Overheating": {
+                "title": "Bearing Overheating",
+                "message": "Bearing temperature is abnormally high, indicating lubrication failure or excessive load. Risk of bearing seizure. Check lubrication and alignment.",
+                "risk_score": 80,
+                "type": "critical"
+            },
+            "Mechanical Overload": {
+                "title": "Mechanical Overload",
+                "message": "Motor is drawing excess current due to mechanical overloading. Sustained overload will cause thermal damage. Reduce driven load or upsize motor.",
+                "risk_score": 85,
+                "type": "critical"
+            },
+            "Overload with Overheating": {
+                "title": "Overload + Overheating",
+                "message": "Combined mechanical overload and thermal stress detected. Motor is operating beyond design limits. Immediate load reduction and cooling required.",
+                "risk_score": 90,
+                "type": "critical"
+            },
+            "Shaft Misalignment": {
+                "title": "Shaft Misalignment",
+                "message": "Vibration patterns indicate angular or parallel misalignment between motor and driven equipment. Causes premature bearing and coupling wear. Realign shaft.",
+                "risk_score": 70,
+                "type": "warning"
+            },
+            "Cooling Failure": {
+                "title": "Cooling System Failure",
+                "message": "Motor cooling system is not functioning properly. Temperature is rising beyond safe limits. Check fan, ventilation ducts, and ambient conditions.",
+                "risk_score": 80,
+                "type": "critical"
+            },
+            "Electrical and Mechanical Combined Failure": {
+                "title": "Combined Electrical & Mechanical Failure",
+                "message": "Multiple simultaneous failure modes detected across electrical and mechanical systems. High risk of cascading damage. Emergency shutdown recommended.",
+                "risk_score": 95,
+                "type": "critical"
+            },
+            "Catastrophic System Failure": {
+                "title": "Catastrophic System Failure",
+                "message": "All critical parameters are severely out of range. Total system failure imminent. Emergency shutdown and full system inspection mandatory.",
+                "risk_score": 100,
+                "type": "critical"
             },
         }
 

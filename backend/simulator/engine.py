@@ -30,13 +30,23 @@ class ElectricalDataSimulator:
         
         temperature = self.base_temp + (current * 0.5) + temp_noise # Temp rises with current
 
+        # Motor metrics
+        vibration = round(random.uniform(0.5, 3.0), 2)       # mm/s (normal range)
+        synchronous_speed = 1500  # RPM for 4-pole, 50Hz motor
+        slip = round(random.uniform(2.0, 5.0), 2)            # percentage
+        speed = round(synchronous_speed * (1 - slip / 100), 1)  # RPM with slip applied
+
         return {
             "timestamp": datetime.now().isoformat(),
             "voltage": round(voltage, 2),
             "current": round(current, 2),
             "power": round(power, 2),
+            "power_factor": round(power_factor, 3),
             "temperature": round(temperature, 2),
             "frequency": round(self.frequency + random.uniform(-0.1, 0.1), 2),
+            "vibration": vibration,
+            "slip": slip,
+            "speed": speed,
             "status": "Normal" # Default status, will be overridden by fault injector
         }
 

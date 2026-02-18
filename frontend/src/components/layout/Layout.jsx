@@ -1,7 +1,7 @@
 import React from 'react';
 import { Outlet, Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
-import { LayoutDashboard, ShieldAlert, Activity, LogOut, User, Globe, BookOpen } from 'lucide-react';
+import { LayoutDashboard, ShieldAlert, Activity, LogOut, User, Globe } from 'lucide-react';
 import clsx from 'clsx';
 
 const Layout = () => {
@@ -19,7 +19,7 @@ const Layout = () => {
         { label: 'Dashboard', path: '/', icon: LayoutDashboard },
         { label: 'Live Monitor', path: '/monitor', icon: Activity },
         { label: 'Alerts', path: '/alerts', icon: ShieldAlert },
-        { label: 'Industry Standards', path: '/standards', icon: BookOpen },
+
     ];
 
     if (user?.role === 'owner') {

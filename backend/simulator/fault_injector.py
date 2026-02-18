@@ -39,12 +39,19 @@ class FaultInjector:
             reading["current"] *= random.uniform(1.5, 2.5)
             reading["temperature"] += random.uniform(10, 30)
             reading["voltage"] *= random.uniform(0.9, 0.95)
+            # Motor stress: high vibration, increased slip, lower speed
+            reading["vibration"] = round(random.uniform(5.0, 12.0), 2)
+            reading["slip"] = round(random.uniform(8.0, 15.0), 2)
+            reading["speed"] = round(1500 * (1 - reading["slip"] / 100), 1)
         
         elif self.active_fault == "Loose Connection":
             # Fluctuating Voltage, Arcing (High Temp spikes)
             if random.random() > 0.5:
                 reading["voltage"] *= random.uniform(0.8, 0.9) # Drop
                 reading["temperature"] += random.uniform(20, 50) # Heat spike
+            # Power factor drops with loose connections, vibration spikes
+            reading["power_factor"] = round(random.uniform(0.55, 0.75), 3)
+            reading["vibration"] = round(random.uniform(4.0, 8.0), 2)
             
         elif self.active_fault == "Insulation Degradation":
             # Leakage current (simulated as slight current increase w/o load), temp rise over time

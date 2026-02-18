@@ -7,7 +7,7 @@ import Monitor from './pages/Monitor';
 import Alerts from './pages/Alerts';
 import Admin from './pages/Admin';
 import GlobalOverview from './pages/GlobalOverview';
-import IndustryStandards from './pages/IndustryStandards';
+
 import { useAuth } from './context/AuthContext';
 
 const ProtectedRoute = ({ children }) => {
@@ -40,7 +40,7 @@ const App = () => {
           <Route path="alerts" element={<Alerts />} />
           <Route path="admin" element={<Admin />} />
           <Route path="global" element={<GlobalOverview />} />
-          <Route path="standards" element={<IndustryStandards />} />
+
         </Route>
       </Routes>
     </BrowserRouter>

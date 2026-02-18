@@ -111,6 +111,22 @@ const Dashboard = () => {
                             <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>Temperature</p>
                             <p style={{ fontSize: '1.5rem', fontWeight: 600 }}>{currentData?.temperature || '--'} °C</p>
                         </div>
+                        <div>
+                            <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>Power Factor</p>
+                            <p style={{ fontSize: '1.5rem', fontWeight: 600 }}>{currentData?.power_factor || '--'}</p>
+                        </div>
+                        <div>
+                            <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>Vibration</p>
+                            <p style={{ fontSize: '1.5rem', fontWeight: 600 }}>{currentData?.vibration || '--'} mm/s</p>
+                        </div>
+                        <div>
+                            <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>Slip</p>
+                            <p style={{ fontSize: '1.5rem', fontWeight: 600 }}>{currentData?.slip || '--'} %</p>
+                        </div>
+                        <div>
+                            <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>Speed</p>
+                            <p style={{ fontSize: '1.5rem', fontWeight: 600 }}>{currentData?.speed || '--'} RPM</p>
+                        </div>
                     </div>
                 </div>
             </div>

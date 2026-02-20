@@ -5,7 +5,7 @@ from datetime import datetime
 from typing import Dict, Any
 
 # Path to the dataset: engine.py → simulator/ → backend/ → project root → Datasets/
-DATASET_PATH = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), 
+DEFAULT_DATASET_PATH = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), 
                             'Datasets', 'Industrial_MultiClass_Dataset_With_Slip.xlsx')
 
 class DatasetReplayEngine:
@@ -13,10 +13,24 @@ class DatasetReplayEngine:
     Replays rows from the real industrial dataset instead of generating random data.
     Cycles through the dataset continuously, one row per call.
     """
-    def __init__(self, offset: int = 0):
-        self.df = pd.read_excel(DATASET_PATH)
-        self.index = offset % len(self.df)
+    def __init__(self, offset: int = 0, dataset_path: str = None):
+        self.dataset_path = dataset_path or DEFAULT_DATASET_PATH
+        self.offset = offset
+        self._load(self.dataset_path, offset)
+
+    def _load(self, path: str, offset: int = 0):
+        """Load a dataset file and reset the index."""
+        if path.endswith('.csv'):
+            self.df = pd.read_csv(path)
+        else:
+            self.df = pd.read_excel(path)
         self.total_rows = len(self.df)
+        self.index = offset % self.total_rows
+
+    def reload(self, new_path: str):
+        """Hot-swap to a new dataset file without restarting."""
+        self._load(new_path, self.offset)
+        self.dataset_path = new_path
 
     def generate_reading(self) -> Dict[str, Any]:
         """

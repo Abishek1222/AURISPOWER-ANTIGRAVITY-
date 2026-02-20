@@ -1,5 +1,28 @@
+import os
+import google.generativeai as genai
+from dotenv import load_dotenv
+
+# Load environment variables
+load_dotenv()
+
 class GenAIExplainer:
     def __init__(self):
+        self.api_key = os.getenv("GEMINI_API_KEY")
+        self.use_gemini = False
+        self.chat_model = None
+
+        if self.api_key:
+            try:
+                genai.configure(api_key=self.api_key)
+                self.model = genai.GenerativeModel('gemini-2.0-flash')
+                self.chat = self.model.start_chat(history=[])
+                self.use_gemini = True
+                print("GenAIExplainer: Gemini API configured successfully (model: gemini-2.0-flash).")
+            except Exception as e:
+                print(f"GenAIExplainer: Failed to configure Gemini API: {e}")
+        else:
+            print("GenAIExplainer: GEMINI_API_KEY not found. Using static fallback.")
+
         # All 23 fault types from the Industrial_MultiClass_Dataset_With_Slip.xlsx
         self.explanations = {
             "Normal Operation": {
@@ -146,22 +169,43 @@ class GenAIExplainer:
         """
         Returns explanation based on the dataset's fault type.
         Falls back to ML anomaly detection if status is normal but ML detects deviation.
+        Optionally uses Gemini for enhanced explanations if available.
         """
-        # Check if we have a specific explanation for this fault type
+        
+        # Static Lookup Logic First (Fastest)
+        base_explanation = {}
         if status in self.explanations:
-            explanation = self.explanations[status].copy()
-            # Enrich with actual reading values
-            explanation["message"] += f" (V={reading['voltage']}V, I={reading['current']}A, PF={reading['power_factor']})"
-            return explanation
-
-        # ML-detected anomaly with unknown status
-        if anomaly_score == -1:
-            return {
+            base_explanation = self.explanations[status].copy()
+            base_explanation["message"] += f" (V={reading['voltage']}V, I={reading['current']}A, PF={reading['power_factor']})"
+        elif anomaly_score == -1:
+             base_explanation = {
                 "title": f"Unusual Pattern: {status}",
                 "message": f"AI detected deviation from normal. Status: {status}. Monitor closely.",
                 "risk_score": 50,
                 "type": "info"
             }
+        else:
+            base_explanation = self.explanations["Normal Operation"].copy()
 
-        # Default fallback
-        return self.explanations["Normal Operation"].copy()
+        # If Gemini is enabled and we have a fault, we could enhance it here, 
+        # but for performance in the live loop, we stick to static mostly.
+        # We reserve the LLM for the interactive ChatBot.
+        
+        return base_explanation
+
+    async def chat_with_context(self, user_message, system_context):
+        """
+        Sends a message to Gemini with system context and returns the response.
+        """
+        if not self.use_gemini:
+            return "I'm sorry, my AI brain (Gemini API) is not configured. Please check the backend logs or .env file."
+
+        try:
+            # Construct a prompt that includes the context
+            prompt = f"System Context:\n{system_context}\n\nUser Question: {user_message}"
+            
+            response = self.chat.send_message(prompt)
+            return response.text
+        except Exception as e:
+            print(f"Gemini Chat Error: {e}")
+            return "I'm having trouble connecting to the AI service right now. Please try again later."

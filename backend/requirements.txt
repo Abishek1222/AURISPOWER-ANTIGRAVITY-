@@ -9,3 +9,5 @@ python-jose[cryptography]
 passlib
 python-multipart
 websockets
+google-generativeai
+python-dotenv

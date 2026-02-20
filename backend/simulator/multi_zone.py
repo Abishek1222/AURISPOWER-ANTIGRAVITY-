@@ -32,3 +32,8 @@ class MultiZoneEngine:
             if zone.zone_id == zone_id:
                 return zone
         return None
+
+    def reload_dataset(self, new_path: str):
+        """Hot-swap the dataset for all zones."""
+        for zone in self.zones:
+            zone.simulator.reload(new_path)

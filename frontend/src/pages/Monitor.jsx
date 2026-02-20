@@ -4,15 +4,31 @@ import { Download, Pause, Play, Activity } from 'lucide-react';
 const Monitor = () => {
     const [history, setHistory] = useState([]);
     const [isPaused, setIsPaused] = useState(false);
+    const isPausedRef = useRef(false);
     const wsRef = useRef(null);
     const messagesEndRef = useRef(null);
 
+    const togglePause = () => {
+        const newState = !isPaused;
+        console.log("Toggling pause. New state:", newState);
+        setIsPaused(newState);
+        isPausedRef.current = newState;
+    };
+
     useEffect(() => {
+        console.log("Monitor component mounted. Connecting WebSocket...");
         const ws = new WebSocket('ws://localhost:8000/ws');
         wsRef.current = ws;
 
+        ws.onopen = () => console.log("WebSocket connected");
+        ws.onclose = () => console.log("WebSocket disconnected");
+
         ws.onmessage = (event) => {
-            if (isPaused) return;
+            if (isPausedRef.current) {
+                console.log("Paused. Skipping update.");
+                return;
+            }
+            // console.log("Received data:", event.data); // Uncomment if needed, might be too verbose
             const parsedData = JSON.parse(event.data);
             // Handle Multi-Zone data (Array) vs Single Zone (Object)
             const data = Array.isArray(parsedData) ? parsedData[0] : parsedData;
@@ -20,9 +36,10 @@ const Monitor = () => {
         };
 
         return () => {
-            if (ws.readyState === 1) ws.close();
+            console.log("Monitor unmounting. Closing WebSocket...");
+            ws.close();
         };
-    }, [isPaused]);
+    }, []);
 
     const handleExport = () => {
         const headers = ["Timestamp", "Voltage (V)", "Current (A)", "Power (W)", "Power Factor", "Temp (C)", "Frequency (Hz)", "Vibration (mm/s)", "Slip (%)", "Speed (RPM)", "Status"];
@@ -62,7 +79,7 @@ const Monitor = () => {
                 </div>
                 <div style={{ display: 'flex', gap: '0.5rem' }}>
                     <button
-                        onClick={() => setIsPaused(!isPaused)}
+                        onClick={togglePause}
                         className="btn-primary"
                         style={{ background: isPaused ? 'var(--success)' : 'var(--warning)' }}
                     >

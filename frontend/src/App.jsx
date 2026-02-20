@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import Layout from './components/layout/Layout';
 import Login from './pages/Login';
 import Dashboard from './components/dashboard/Dashboard';
+import DataSource from './pages/DataSource';
 import Monitor from './pages/Monitor';
 import Alerts from './pages/Alerts';
 import Admin from './pages/Admin';
@@ -39,6 +40,7 @@ const App = () => {
           <Route path="monitor" element={<Monitor />} />
           <Route path="alerts" element={<Alerts />} />
           <Route path="admin" element={<Admin />} />
+          <Route path="datasource" element={<DataSource />} />
           <Route path="global" element={<GlobalOverview />} />
 
         </Route>

@@ -1,8 +1,10 @@
 import React from 'react';
 import { Outlet, Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
-import { LayoutDashboard, ShieldAlert, Activity, LogOut, User, Globe } from 'lucide-react';
+import { LayoutDashboard, ShieldAlert, Activity, LogOut, User, Globe, Database } from 'lucide-react';
 import clsx from 'clsx';
+
+import ChatBot from '../ChatBot';
 
 const Layout = () => {
     const { user, logout } = useAuth();
@@ -18,6 +20,7 @@ const Layout = () => {
         { label: 'Global Overview', path: '/global', icon: Globe },
         { label: 'Dashboard', path: '/', icon: LayoutDashboard },
         { label: 'Live Monitor', path: '/monitor', icon: Activity },
+        { label: 'Data Source', path: '/datasource', icon: Database },
         { label: 'Alerts', path: '/alerts', icon: ShieldAlert },
 
     ];
@@ -99,6 +102,8 @@ const Layout = () => {
             <main style={{ flex: 1, padding: '1rem', overflowY: 'auto' }}>
                 <Outlet />
             </main>
+
+            <ChatBot />
         </div>
     );
 };

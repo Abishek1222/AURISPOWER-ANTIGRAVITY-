@@ -1,0 +1,3 @@
+Voltage (V),Current (A),Power (kW),Temperature (°C),Vibration (mm/s),Speed (RPM),Slip,Power Factor,Fault_Type
+230,12,2.5,50,0.6,1480,0.02,0.9,Normal Operation
+220,11,2.3,48,0.5,1470,0.025,0.88,Normal Operation
